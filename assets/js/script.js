@@ -201,3 +201,103 @@ function saveStudent() {
 }
 
 fetchStudents();
+
+// --- CHATBOT LOGIC ---
+document.addEventListener("DOMContentLoaded", () => {
+  const chatToggleBtn = document.getElementById("chatToggleBtn");
+  const chatContainer = document.getElementById("chatContainer");
+  const closeChatBtn = document.getElementById("closeChatBtn");
+  const chatInput = document.getElementById("chatInput");
+  const sendMessageBtn = document.getElementById("sendMessageBtn");
+  const chatHistory = document.getElementById("chatHistory");
+
+  // Toggle Chat Visibility
+  if (chatToggleBtn) {
+    chatToggleBtn.addEventListener("click", () => {
+      chatContainer.classList.remove("hidden");
+    });
+  }
+  if (closeChatBtn) {
+    closeChatBtn.addEventListener("click", () => {
+      chatContainer.classList.add("hidden");
+    });
+  }
+
+  // Helper for Suggestion Chips
+  window.fillChat = function (text) {
+    if (chatInput) {
+      chatInput.value = text;
+      chatInput.focus();
+    }
+  };
+
+  // Send Message Logic
+  async function sendMessage() {
+    const message = chatInput.value.trim();
+    if (!message) return;
+
+    // 1. Add User Message
+    appendMessage("user", message);
+    chatInput.value = "";
+
+    // 2. Add Loading Indicator
+    const loaderId = "loader-" + Date.now();
+    const loaderDiv = document.createElement("div");
+    loaderDiv.classList.add("message", "bot-message");
+    loaderDiv.id = loaderId;
+    loaderDiv.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+    chatHistory.appendChild(loaderDiv);
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+
+    try {
+      // 3. Send to Backend
+      const res = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message }),
+      });
+
+      const data = await res.json();
+
+      // 4. Remove Loader & Show Reply
+      const loader = document.getElementById(loaderId);
+      if (loader) loader.remove();
+
+      appendMessage("bot", data.reply);
+    } catch (error) {
+      const loader = document.getElementById(loaderId);
+      if (loader) loader.remove();
+      appendMessage("bot", "❌ Error connecting to AI.");
+      console.error(error);
+    }
+  }
+
+  function appendMessage(sender, text) {
+    const msgDiv = document.createElement("div");
+    msgDiv.classList.add(
+      "message",
+      sender === "user" ? "user-message" : "bot-message"
+    );
+
+    // Format bold text (**text**) to HTML bold
+    if (sender === "bot") {
+      let formatted = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+      formatted = formatted.replace(/\n/g, "<br>");
+      msgDiv.innerHTML = formatted;
+    } else {
+      msgDiv.textContent = text;
+    }
+
+    chatHistory.appendChild(msgDiv);
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+  }
+
+  if (sendMessageBtn) {
+    sendMessageBtn.addEventListener("click", sendMessage);
+  }
+  if (chatInput) {
+    chatInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") sendMessage();
+    });
+  }
+});

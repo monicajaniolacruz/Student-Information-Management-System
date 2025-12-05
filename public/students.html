@@ -251,6 +251,47 @@
           </div>
         </div>
       </div>
+      <button id="chatToggleBtn" class="chat-toggle-btn" title="Ask AI">
+        <i class="bi bi-chat-dots-fill"></i>
+      </button>
+
+      <div id="chatContainer" class="chat-container hidden">
+        <div class="chat-header">
+          <span><i class="bi bi-robot"></i> Student AI</span>
+          <button id="closeChatBtn"><i class="bi bi-x-lg"></i></button>
+        </div>
+
+        <div id="chatHistory" class="chat-history">
+          <div class="message bot-message">
+            Hello! I can analyze the student records for you.
+          </div>
+        </div>
+
+        <div class="chat-input-area">
+          <div class="suggestions-row">
+            <button
+              class="chip"
+              onclick="fillChat('How many students are there?')"
+            >
+              Count Students
+            </button>
+            <button class="chip" onclick="fillChat('List all BSIT students')">
+              List BSIT
+            </button>
+            <button
+              class="chip"
+              onclick="fillChat('Who is the oldest student?')"
+            >
+              Oldest?
+            </button>
+          </div>
+
+          <div class="input-wrapper">
+            <input type="text" id="chatInput" placeholder="Ask a question..." />
+            <button id="sendMessageBtn"><i class="bi bi-send-fill"></i></button>
+          </div>
+        </div>
+      </div>
     </main>
 
     <footer id="footer" class="footer position-relative dark-background">
@@ -263,6 +304,10 @@
         <div class="credits">
           Designed by
           <a href="">Monica & Anilov</a>
+        </div>
+        <div class="credits">
+          Idea
+          <a href="">Winsheer the GOAT & Jhon the GREAT</a>
         </div>
       </div>
     </footer>
